@@ -6,3 +6,5 @@
 *.jar
 
 web/build.txt
+/.idea/workspace.xml
+
