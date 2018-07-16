@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="commons-net-1.4.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/commons-net-1.4.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/dom4j-1.6.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jaxen-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/log4j-1.2.14.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.apache.commons.codec.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.apache.commons.httpclient.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.apache.commons.logging.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/org.restlet.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

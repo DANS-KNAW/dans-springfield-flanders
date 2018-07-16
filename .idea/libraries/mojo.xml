@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="mojo">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/mojo.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
