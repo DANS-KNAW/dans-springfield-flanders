@@ -36,6 +36,8 @@ import org.dom4j.Element;
 import org.springfield.flanders.homer.FlandersProperties;
 import org.springfield.flanders.homer.LazyHomer;
 import org.springfield.flanders.tools.HttpHelper;
+import org.apache.log4j.Logger;
+
 
 /**
  * FfprobeMetaDataExtractor.java
@@ -45,12 +47,14 @@ import org.springfield.flanders.tools.HttpHelper;
  * @package org.springfield.flanders
  * 
  */
-public class FfprobeMetaDataExtractor {	
+public class FfprobeMetaDataExtractor {
+	private static Logger log = Logger.getLogger(FfprobeMetaDataExtractor.class);
 	private static String tempFolder;	
 	private static String STREAM_REGEX = "\\[STREAM\\](.*?)\\[\\/STREAM]";
 	private static String FORMAT_REGEX = "\\[FORMAT\\](.*?)\\[\\/FORMAT]";
 
 	public static String extractMetaData(String source) {
+		log.info("Extracting metadata of: " + source);
 		FlandersProperties fp = LazyHomer.getMyFlandersProperties();
 		tempFolder = fp.getTemporaryDirectory();
 		
@@ -70,12 +74,11 @@ public class FfprobeMetaDataExtractor {
 		arg1 = GlobalConfig.instance().getFfprobePath().replace("\n", "");
 		arg2 = source.replace("\n", "");
 		arg3 = metadataFile.replace("\n", "");		
-		System.out.println("Command is: ");		
-		System.out.println(cmd + " " + arg1 + " " + arg2 + " " + arg3);				
+		log.debug("Command is: " + cmd + " " + arg1 + " " + arg2 + " " + arg3);
 		if (source != null && !source.equals("") && metadataFile != null && !metadataFile.equals("")) {
-			System.out.println("-- ABOUT TO RUN THE COMMAND --");
+			log.trace("-- ABOUT TO RUN THE COMMAND --");
 			commandRunner(cmd, arg1, arg2, arg3);			
-			System.out.println("-- FINISHED WITH THE COMMAND --");
+			log.trace("-- FINISHED WITH THE COMMAND --");
 			return getResponseStringFromMPlayerTempFile(metadataFile, source);			
 		} else {
 			return HttpHelper.getErrorMessageAsString("500", "Could not construct the command for ffprobe",
@@ -90,12 +93,13 @@ public class FfprobeMetaDataExtractor {
 	 * @return
 	 */
 	private static String getResponseStringFromMPlayerTempFile(String path, String source) {
+		log.debug("Parsing output of mplayer");
 		source = source.trim();
 	    
 	    	FileReader tempMetadataFile = null;
 		//String xml = "<meta-data>";
 		String xml = "";
-		System.out.println("file is: " + path);
+		log.debug("Temporary metadata file is: " + path);
 		
 		Element metaEl = DocumentHelper.createElement("meta-data");
 		try {
@@ -160,7 +164,7 @@ public class FfprobeMetaDataExtractor {
 						if (key.equals("codec_name")) {
 							metaEl = addValue(metaEl, value, "videocodec");					
 						} else if (key.equals("width")) {
-							System.out.println("Width = "+value);
+							log.debug("Width = "+value);
 							metaEl = addValue(metaEl, value, "width");
 							width = Integer.parseInt(value);
 						}  else if (key.equals("height")) {
@@ -195,12 +199,12 @@ public class FfprobeMetaDataExtractor {
 								//check if width & height have a correct aspect ratio
 								if (width != 0 && height != 0 && (int)(width / pixelaspect) != height) {
 									width = (int)(height*pixelaspect);
-									System.out.println("Corrected width = "+width);
+									log.debug("Corrected width = "+width);
 									metaEl = addValue(metaEl, String.valueOf(width), "width");
 								}
 							}						
 						} else if (key.equals("duration")) {
-							System.out.println("DURATION: " + value);
+							log.debug("DURATION: " + value);
 							if (value.equals("N/A")) {
 								//could happen with MKV video
 								Pattern pformat = Pattern.compile(FORMAT_REGEX, Pattern.DOTALL | Pattern.MULTILINE);
@@ -213,7 +217,7 @@ public class FfprobeMetaDataExtractor {
 										String l = formatLines[j];
 										if (l.startsWith("duration=")) {
 											value = l.substring(l.indexOf("=")+1);
-											System.out.println("DURATION: " + value);
+											log.debug("DURATION: " + value);
 										}
 									}
 								}
@@ -236,7 +240,7 @@ public class FfprobeMetaDataExtractor {
 						if (key.equals("codec_name")) {						
 							metaEl = addValue(metaEl, value, "audiocodec");
 						} else if (key.equals("bit_rate")) {
-							System.out.println("ABR: " + value);
+							log.debug("ABR: " + value);
 							if (value.equals("N/A")) {
 							    abr = 0l;
 							} else {
@@ -261,20 +265,20 @@ public class FfprobeMetaDataExtractor {
 		}
 
 		if(dur > 0) {
-			System.out.println("Calculating video bitrate");
+			log.debug("Calculating video bitrate");
 			File f = new File(source);
 			long fs = f.length() * 8;
-			System.out.println("size: " + fs + " duration: " + (int)dur + " abr: " + abr);
+			log.debug("size: " + fs + " duration: " + (int)dur + " abr: " + abr);
 			if((int)dur != 0)
 				br = fs / (int)dur - abr;
 			metaEl = addValue(metaEl, br + "", "videobitrate");
 		} else if (audiodur > 0) {
 		    metaEl = addValue(metaEl, audiodur + "", "duration");
 		    
-		    System.out.println("Calculating audio bitrate");
+		    log.debug("Calculating audio bitrate");
 		    File f = new File(source);
 			long fs = f.length() * 8;
-			System.out.println("size: " + fs + " duration: " + (int)dur);
+			log.debug("size: " + fs + " duration: " + (int)dur);
 			if((int)dur != 0)
 				br = fs / (int)dur;
 			metaEl = addValue(metaEl, br + "", "audiobitrate");		    
@@ -290,7 +294,7 @@ public class FfprobeMetaDataExtractor {
 		}
 		
 		xml = metaEl.asXML();
-		System.out.println(xml);
+		log.debug(xml);
 		
 		return xml;
 	}
@@ -307,7 +311,7 @@ public class FfprobeMetaDataExtractor {
     	
     	long stamp = cal.getTimeInMillis();
     	
-    	System.out.println(stamp);
+    	log.debug(stamp);
     	String path = "";
     	String fileName = "";
     	

@@ -45,7 +45,7 @@ public class FlandersInitialListener implements ServletContextListener {
 		LazyHomer lh = new LazyHomer();
 		lh.init(servletContext.getRealPath("/"));	
 		
-		GlobalConfig.instance().initialize(servletContext.getRealPath("/"));
+		GlobalConfig.instance().initialize();
 	}
 	
 	public void contextDestroyed(ServletContextEvent event) {

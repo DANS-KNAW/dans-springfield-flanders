@@ -34,7 +34,6 @@ public class GlobalConfig {
 	private static GlobalConfig instance = new GlobalConfig();
 	private static String CONFIG_FILE = "config.xml";
 
-	private String baseDir;
 	private String ffprobeScriptDir;
 	private String rtmpdumpScriptDir;
 	private String idtrawScriptDir;
@@ -50,14 +49,12 @@ public class GlobalConfig {
 		return instance;
 	}
 
-	private void initConfig() {
-		File file = new File(baseDir + "/conf/" + CONFIG_FILE);
+	private void initConfig(String baseDir) {
+		File file = new File(baseDir + File.separator + CONFIG_FILE);
 		config = new Properties();
 		try {
-			if (file.exists()) {
-				config.loadFromXML(new BufferedInputStream(new FileInputStream(file)));
-
-			}
+			config.loadFromXML(new BufferedInputStream(new FileInputStream(file)));
+			System.out.println("FLANDERS: loaded configuration from " + file);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -65,33 +62,29 @@ public class GlobalConfig {
 		}
 	}
 
-	public void initialize(String baseDir) {
-		System.out.println("initializing config: " + baseDir);
-		this.baseDir = baseDir;
-		
+	public void initialize() {
+		String baseDir = "/springfield/flanders";
+		System.out.println("FLANDERS: Initializing, basedir: " + baseDir);
+
 		String os = System.getProperty("os.name").toLowerCase();
 		//running windows
 		if(os.contains("windows")){
-			ffprobeScriptDir = baseDir + "scripts" + File.separator + "ffprobe_extract.bat";
-			rtmpdumpScriptDir = baseDir + "scripts" + File.separator + "rtmpd_extract.bat";
+			ffprobeScriptDir = baseDir + File.separator + "scripts" + File.separator + "ffprobe_extract.bat";
+			rtmpdumpScriptDir = baseDir + File.separator + "scripts" + File.separator + "rtmpd_extract.bat";
 		}
 		//running linux
 		else{
-			ffprobeScriptDir = baseDir + "scripts" + File.separator + "ffprobe_extract.sh";		
-			rtmpdumpScriptDir = baseDir + "scripts" + File.separator + "rtmpd_extract.sh";	
-			idtrawScriptDir = baseDir + "scripts" + File.separator + "idt_raw_extract.sh";
-			cineScriptDir = baseDir + "scripts" + File.separator + "cine_extract.sh";
+			ffprobeScriptDir = baseDir + File.separator + "scripts" + File.separator + "ffprobe_extract.sh";
+			rtmpdumpScriptDir = baseDir + File.separator + "scripts" + File.separator + "rtmpd_extract.sh";
+			idtrawScriptDir = baseDir + File.separator  + "scripts" + File.separator + "idt_raw_extract.sh";
+			cineScriptDir = baseDir + File.separator + "scripts" + File.separator + "cine_extract.sh";
 			Chmod.chmodDefault(ffprobeScriptDir);
 			Chmod.chmodDefault(rtmpdumpScriptDir);
 			Chmod.chmodDefault(idtrawScriptDir);
 			Chmod.chmodDefault(cineScriptDir);
 		}		
-		initConfig();
+		initConfig(baseDir);
 	}
-	
-	public String getBaseDir(){
-		return baseDir;
-	}	
 	
 	public String getFfprobeScriptDir(){
 		return ffprobeScriptDir;
