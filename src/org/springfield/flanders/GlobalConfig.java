@@ -27,8 +27,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.springfield.flanders.tools.Chmod;
-
 public class GlobalConfig {
 
 	private static GlobalConfig instance = new GlobalConfig();
@@ -78,11 +76,7 @@ public class GlobalConfig {
 			rtmpdumpScriptDir = baseDir + File.separator + "scripts" + File.separator + "rtmpd_extract.sh";
 			idtrawScriptDir = baseDir + File.separator  + "scripts" + File.separator + "idt_raw_extract.sh";
 			cineScriptDir = baseDir + File.separator + "scripts" + File.separator + "cine_extract.sh";
-			Chmod.chmodDefault(ffprobeScriptDir);
-			Chmod.chmodDefault(rtmpdumpScriptDir);
-			Chmod.chmodDefault(idtrawScriptDir);
-			Chmod.chmodDefault(cineScriptDir);
-		}		
+		}
 		initConfig(baseDir);
 	}
 	
