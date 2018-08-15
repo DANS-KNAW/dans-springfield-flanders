@@ -62,7 +62,6 @@
 				<exclude name="com.noelios.restlet.jar"/>
 				<exclude name="dom4j-1.6.1.jar"/>
 				<exclude name="jaxen-1.1.1.jar"/>
-				<exclude name="log4j-1.2.14.jar"/>
 				<exclude name="mojo.jar"/>
 				<exclude name="org.apache.commons.codec.jar"/>
 				<exclude name="org.apache.commons.httpclient.jar"/>
