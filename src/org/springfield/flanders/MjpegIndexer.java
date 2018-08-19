@@ -78,7 +78,6 @@ public class MjpegIndexer {
 	/**
 	 * Runs the command passed as parameter
 	 *
-	 * @param comand
 	 */
 	private static void commandRunner(String cmd, String arg1, String arg2) {
 		
@@ -95,8 +94,7 @@ public class MjpegIndexer {
 			}
 			in.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.warn("Eating exception and continuing", e);
 		}
 	}
 }

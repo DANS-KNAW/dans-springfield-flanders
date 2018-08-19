@@ -26,8 +26,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
+import org.apache.log4j.Logger;
 
 public class GlobalConfig {
+	private static Logger log = Logger.getLogger(GlobalConfig.class);
 
 	private static GlobalConfig instance = new GlobalConfig();
 	private static String CONFIG_FILE = "config.xml";
@@ -52,17 +54,16 @@ public class GlobalConfig {
 		config = new Properties();
 		try {
 			config.loadFromXML(new BufferedInputStream(new FileInputStream(file)));
-			System.out.println("FLANDERS: loaded configuration from " + file);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			log.debug("FLANDERS: loaded configuration from " + file);
+		}
+		catch (IOException e) {
+			log.warn("Eating exception and continuing", e);
 		}
 	}
 
 	public void initialize() {
 		String baseDir = "/springfield/flanders";
-		System.out.println("FLANDERS: Initializing, basedir: " + baseDir);
+		log.info("FLANDERS: Initializing, basedir: " + baseDir);
 
 		String os = System.getProperty("os.name").toLowerCase();
 		//running windows

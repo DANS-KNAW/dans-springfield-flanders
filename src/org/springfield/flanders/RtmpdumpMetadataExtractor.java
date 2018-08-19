@@ -29,11 +29,13 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springfield.flanders.tools.HttpHelper;
 
 public class RtmpdumpMetadataExtractor {
+	private static final Logger log = Logger.getLogger(RtmpdumpMetadataExtractor.class);
 	
 	private static final String TMP_FOLDER = "/tmp/flanders";	
 	
@@ -49,12 +51,12 @@ public class RtmpdumpMetadataExtractor {
 		String arg2 = stream.replace("\n", "");
 		String arg3 = filename.replace("\n", "");
 		String arg4 = metadataFile.replace("\n", "");		
-		System.out.println("Command is: ");		
-		System.out.println(cmd + " " + arg1 + " " + arg2 + " " + arg3);				
+		log.debug("Command is: ");
+		log.debug(cmd + " " + arg1 + " " + arg2 + " " + arg3);
 		if (stream != null && !stream.equals("") && metadataFile != null && !metadataFile.equals("")) {
-			System.out.println("-- ABOUT TO RUN THE COMMAND --");
+			log.debug("-- ABOUT TO RUN THE COMMAND --");
 			commandRunner(cmd, arg1, arg2, arg3, arg4);			
-			System.out.println("-- FINISHED WITH THE COMMAND --");
+			log.debug("-- FINISHED WITH THE COMMAND --");
 			return getResponseStringFromRtmpdumpTempFile(metadataFile, stream);			
 		} else {
 			return HttpHelper.getErrorMessageAsString("500", "Could not construct the command for rtmpdump",
@@ -76,7 +78,7 @@ public class RtmpdumpMetadataExtractor {
     	
     	long stamp = cal.getTimeInMillis();
     	
-    	System.out.println(stamp);
+    	log.debug("Timestamp = " + stamp);
     	String path = "";
     	String fileName = "";
     	
@@ -109,7 +111,7 @@ public class RtmpdumpMetadataExtractor {
 		FileReader tempMetadataFile = null;
 		//String xml = "<meta-data>";
 		String xml = "";
-		System.out.println("file is: " + path);
+		log.debug("file is: " + path);
 		
 		Element metaEl = DocumentHelper.createElement("meta-data");
 		try {
@@ -133,7 +135,7 @@ public class RtmpdumpMetadataExtractor {
 				if(line.indexOf("INFO:") != -1) {
 					line = line.substring( line.indexOf("INFO:")+5 ).trim();
 				}
-				System.out.println(line);
+				log.debug("line = " + line);
 				String[] parts = line.split("\\s+");
 				if (parts.length >= 2) {
 					String key = parts[0];
@@ -157,14 +159,14 @@ public class RtmpdumpMetadataExtractor {
 							double audiochannels = Double.parseDouble(value);
 							metaEl = addValue(metaEl, Long.toString((long)audiochannels), "audiochannels");
 						} catch(Exception e) {
-							System.out.println("Could not parse audiochannels");
+							log.warn("Could not parse audiochannels; eating exception and continuing", e);
 						}
 					} else if (key.equals("audiosamplerate")) {
 						try {
 							double samplerate = Double.parseDouble(value);
 							metaEl = addValue(metaEl, Long.toString((long)samplerate), "samplerate");
 						} catch(Exception e) {
-							System.out.println("Could not parse samplerate");
+							log.warn("Could not parse samplerate; eating exception and continuing", e);
 						}
 					} else if (key.equals("videoframerate")) {
 						metaEl = addValue(metaEl, value, "framerate");
@@ -183,14 +185,14 @@ public class RtmpdumpMetadataExtractor {
 							width = Double.parseDouble(value);
 							metaEl = addValue(metaEl, Long.toString((long)width), "width");
 						} catch(Exception e) {
-							System.out.println("Could not parse width");
+							log.warn("Could not parse width; eating exception and continuing", e);
 						}
 					} else if (key.equals("height")) {
 						try {
 							height = Double.parseDouble(value);
 							metaEl = addValue(metaEl, Long.toString((long)height), "height");
 						} catch(Exception e) {
-							System.out.println("Could not parse height");
+							log.warn("Could not parse height; eating exception and continuing", e);
 						}
 					} else if (key.equals("moovposition")) {
 						//TODO
@@ -199,7 +201,7 @@ public class RtmpdumpMetadataExtractor {
 						try {
 							dur = Double.parseDouble(value);
 						} catch(Exception e) {
-							System.out.println("Could not parse duration");
+							log.warn("Could not parse duration; eating exception and continuing", e);
 						}
 					}
 				}
@@ -210,8 +212,8 @@ public class RtmpdumpMetadataExtractor {
 				metaEl = addValue(metaEl, Double.toString(pixelaspect), "pixelaspect");
 			}
 			if(dur > 0){
-				System.out.println("Calculating video bitrate");
-				System.out.println("size: " + filesize + " duration: " + (int)dur + " abr: " + abr);
+				log.debug("Calculating video bitrate");
+				log.debug("size: " + filesize + " duration: " + (int)dur + " abr: " + abr);
 				if((int)dur != 0)
 					br = (long)filesize / (int)dur - abr;
 				metaEl = addValue(metaEl, br + "", "videobitrate");
@@ -220,7 +222,7 @@ public class RtmpdumpMetadataExtractor {
 			metaEl.addElement("metadata_file").setText(path);
 			
 			xml = metaEl.asXML();
-			System.out.println(xml);			
+			log.debug(xml);
 		} catch (IOException e) {
 			xml = HttpHelper.getErrorMessageAsString("500", "MPlayer could not save the meta-data to a file",
 					"MPlayer could not save the meta-data to a file",
@@ -230,7 +232,7 @@ public class RtmpdumpMetadataExtractor {
 				reader.close();
 				tempMetadataFile.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.warn("Eating exception and continuing", e);
 			}
 		}
 		return xml;
@@ -240,7 +242,7 @@ public class RtmpdumpMetadataExtractor {
 	/**
 	 * converts the String with the seconds passed as argument to an int
 	 *  
-	 * @param int duration in milliseconds
+	 * @param value duration in milliseconds
 	 * @return
 	 */
 	public static int calculateMillis(String value){		
@@ -271,8 +273,6 @@ public class RtmpdumpMetadataExtractor {
 	
 	/**
 	 * Runs the command passed as parameter
-	 *
-	 * @param comand
 	 */
 	private static void commandRunner(String cmd, String arg1, String arg2, String arg3, String arg4) {
 		
@@ -289,8 +289,7 @@ public class RtmpdumpMetadataExtractor {
 			}
 			in.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warn("Eating exception and continuing", e);
 		}
 	}
 	

@@ -64,8 +64,7 @@ public class MargeTimerThread extends Thread {
 			} catch(InterruptedException i) {
 				if (!running) break;
 			} catch(Exception e) {
-					LOG.info("ERROR MargeTimerThread");
-					//e.printStackTrace();
+				LOG.warn("Eating exception and continuing", e);
 			}
 		}
 	}

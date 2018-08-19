@@ -38,7 +38,6 @@ import org.springfield.flanders.homer.LazyHomer;
 public class FlandersInitialListener implements ServletContextListener {
 
 	public void contextInitialized(ServletContextEvent event) {
-		System.out.println("Flanders: context created");
 		ServletContext servletContext = event.getServletContext();
 		
 		//load LazyHomer		
@@ -49,8 +48,6 @@ public class FlandersInitialListener implements ServletContextListener {
 	}
 	
 	public void contextDestroyed(ServletContextEvent event) {
-		//destroy LazyHomer
 		LazyHomer.destroy();
-		System.out.println("Lou: context destroyed");
 	}
 }

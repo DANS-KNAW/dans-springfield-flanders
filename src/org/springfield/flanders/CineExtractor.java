@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.apache.log4j.Logger;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.springfield.flanders.homer.FlandersProperties;
@@ -44,6 +45,7 @@ import org.springfield.flanders.tools.HttpHelper;
  * 
  */
 public class CineExtractor {
+	private static final Logger log = Logger.getLogger(CineExtractor.class);
     private static String tempFolder;
     
     public static String extractMetaData(String source) {
@@ -66,12 +68,12 @@ public class CineExtractor {
 	arg1 = GlobalConfig.instance().getCinePath().replace("\n", "");
 	arg2 = source.replace("\n", "");
 	arg3 = metadataFile.replace("\n", "");		
-	System.out.println("Command is: ");		
-	System.out.println(cmd + " " + arg1 + " " + arg2 + " " + arg3);				
+	log.debug("Command is: ");
+	log.debug(cmd + " " + arg1 + " " + arg2 + " " + arg3);
 	if (source != null && !source.equals("") && metadataFile != null && !metadataFile.equals("")) {
-		System.out.println("-- ABOUT TO RUN THE COMMAND --");
+		log.debug("-- ABOUT TO RUN THE COMMAND --");
 		commandRunner(cmd, arg1, arg2, arg3);			
-		System.out.println("-- FINISHED WITH THE COMMAND --");
+		log.debug("-- FINISHED WITH THE COMMAND --");
 		return getResponseStringFromMPlayerTempFile(metadataFile, source);			
 	} else {
 	    return HttpHelper.getErrorMessageAsString("500", "Could not construct the command for dcraw",
@@ -89,7 +91,7 @@ public class CineExtractor {
 	FileReader tempMetadataFile = null;
 	//String xml = "<meta-data>";
 	String xml = "";
-	System.out.println("file is: " + path);
+	log.debug("file is: " + path);
 		
 	Element metaEl = DocumentHelper.createElement("meta-data");
 	try {
@@ -114,7 +116,7 @@ public class CineExtractor {
 		     String key = line.substring(0, term);
 		     String value = line.substring(term + 1, line.length());
 		     
-		     System.out.println("key = "+key+" val = "+value);
+		     log.debug("key = "+key+" val = "+value);
 		     
 		     if (key.equals("Shutter") || key.equals("Sluiter")) {
 			 fps = parseFramerate(value);
@@ -137,15 +139,15 @@ public class CineExtractor {
 		reader.close();
 		tempMetadataFile.close();
 	    } catch (IOException e) {
-		e.printStackTrace();
+				log.warn("Eating exception and continuing", e);
 	    }
 	}
 	
 	if(dur > 0) {
-	    System.out.println("Calculating video bitrate");
+	    log.debug("Calculating video bitrate");
 	    File f = new File(source);
 	    long fs = f.length() * 8;
-	    System.out.println("size: " + fs + " duration: " + (int)dur);
+	    log.debug("size: " + fs + " duration: " + (int)dur);
 	    if((int)dur != 0) {
 		br = fs / (int)dur;
 	    }
@@ -162,7 +164,7 @@ public class CineExtractor {
 	}
 		
 	xml = metaEl.asXML();
-	System.out.println(xml);
+	log.debug(xml);
 		
 	return xml;
     }
@@ -178,7 +180,7 @@ public class CineExtractor {
 	
 	long stamp = cal.getTimeInMillis();
 	
-	System.out.println(stamp);
+	log.debug("Timestamp = " + stamp);
 	String path = "";
 	String fileName = "";
 	
@@ -218,7 +220,6 @@ public class CineExtractor {
     /**
      * Runs the command passed as parameter
      *
-     * @param comand
      */
     private static void commandRunner(String cmd, String arg1, String arg2, String arg3) {
 	ProcessBuilder pb = new ProcessBuilder(cmd, arg1, arg2, arg3);
@@ -234,8 +235,7 @@ public class CineExtractor {
 	    }
 	    in.close();
 	} catch (IOException e) {
-	    // TODO Auto-generated catch block
-	    e.printStackTrace();
+		log.warn("Eating exception and continuing", e);
 	}
     }
     

@@ -140,7 +140,7 @@ public class FfprobeMetaDataExtractor {
 				reader.close();
 				tempMetadataFile.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.warn("Eating exception and continuing", e);
 			}
 		}
 		
@@ -372,8 +372,7 @@ public class FfprobeMetaDataExtractor {
 			}
 			in.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.warn("Eating exception and continuing", e);
 		}
 	}
 }

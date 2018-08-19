@@ -20,11 +20,14 @@
 */
 package org.springfield.flanders.tools;
 
+import org.apache.log4j.Logger;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
 public class FileHelper {
+	private static final Logger log = Logger.getLogger(FileHelper.class);
 
 	public static boolean saveStringToFile(String fileToSave, String data) {
 		Writer fw = null;
@@ -33,7 +36,7 @@ public class FileHelper {
 			fw.write(data);
 			fw.append('\n');
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.warn("Eating exception and continuing", e);
 			return false;
 		} finally {
 			if (fw != null)

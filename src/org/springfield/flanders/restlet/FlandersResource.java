@@ -112,7 +112,7 @@ public class FlandersResource extends ServerResource {
 				xml = representation.getText();
 			}
 		} catch (IOException e2) {
-			e2.printStackTrace();
+			log.warn("Eating exception and continuing", e2);
 			return;
 		}
 		log.debug("REPRESENTATION: " + xml);
@@ -121,7 +121,7 @@ public class FlandersResource extends ServerResource {
 			try {
 				document = DocumentHelper.parseText(xml);
 			} catch (DocumentException e1) {
-				e1.printStackTrace();
+				log.warn("Eating exception and continuing", e1);
 			}
 			Node node = document.selectSingleNode("//root");
 			String mount = node.valueOf("mount");
@@ -201,7 +201,7 @@ public class FlandersResource extends ServerResource {
 		 // retry on failure
 		 boolean success = false;
 		 for(int i=0; i<NUM_RETRIES; i++) {
-			 System.out.println("server "+server+" user "+username+" password "+password+" remote folder "+rFolder+" filename "+fileName);
+			 log.debug("server "+server+" user "+username+" password "+password+" remote folder "+rFolder+" filename "+fileName);
 			 success = FtpHelper.commonsGetFile(server, username, password, rFolder, lFolder, fileName);
 			 if(success) {
 				 break;
