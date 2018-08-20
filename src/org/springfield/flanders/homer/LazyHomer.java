@@ -74,14 +74,14 @@ public class LazyHomer implements MargeObserver {
 		rootPath = r;
 		ins = this;
 		retryCounter = 0;
-		initConfig();
 		initLogger();
-		
+		initConfig();
+
 		try{
 			InetAddress mip=InetAddress.getLocalHost();
 			myip = ""+mip.getHostAddress();
 		}catch (Exception e){
-			System.out.println("Exception ="+e.getMessage());
+			LOG.warn("Eating exception and continuing", e);
 		}
 		LOG.info("Flanders init service name = flanders on ipnumber = "+myip);
 		marge = new LazyMarge();
@@ -95,12 +95,12 @@ public class LazyHomer implements MargeObserver {
 	public static void addSmithers(String ipnumber,String port,String mport,String role) {
 		int oldsize = smithers.size();
 		if (!(""+LazyHomer.getPort()).equals(mport)) {
-			System.out.println("FLANDERS EXTREEM WARNING CLUSTER COLLISION ("+LazyHomer.getPort()+") "+ipnumber+":"+port+":"+mport);
+			LOG.warn("FLANDERS EXTREME WARNING CLUSTER COLLISION ("+LazyHomer.getPort()+") "+ipnumber+":"+port+":"+mport);
 			return;
 		}
 	
 		if (!role.equals(getRole())) {
-			System.out.println("flanders : Ignored this smithers ("+ipnumber+") its "+role+" and not "+getRole()+" like us");
+			LOG.info("flanders : Ignored this smithers ("+ipnumber+") its "+role+" and not "+getRole()+" like us");
 			return;
 		}
 	
@@ -113,7 +113,6 @@ public class LazyHomer implements MargeObserver {
 			sp.setAlive(true); // since talking its alive 
 			noreply = false; // stop asking (minimum of 60 sec, delayed)
 			LOG.info("Flanders found smithers at = "+ipnumber+" port="+port+" multicast="+mport);
-			System.out.println("Flanders found smithers at = "+ipnumber+" port="+port+" multicast="+mport);
 		} else {
 			if (!sp.isAlive()) {
 				sp.setAlive(true); // since talking its alive again !
@@ -206,7 +205,7 @@ public class LazyHomer implements MargeObserver {
 					if (ipnumber.equals(myip)) {
 						foundmynode = true;
 						if (name.equals("unknown")) {
-							System.out.println("This flanders is not verified change its name, use smithers todo this for ip "+myip);
+							LOG.error("This flanders is not verified change its name, use smithers todo this for ip "+myip);
 						} else {
 							// so we have a name (verified) return true
 							iamok = true;
@@ -227,7 +226,7 @@ public class LazyHomer implements MargeObserver {
 					try{
 						  os = System.getProperty("os.name");
 					} catch (Exception e){
-						System.out.println("LazyHomer : "+e.getMessage());
+						LOG.warn("Eating exception and continuing", e);
 					}
 					
 					String newbody = "<fsxml><properties>";
@@ -265,8 +264,7 @@ public class LazyHomer implements MargeObserver {
 				}
 			}
 		} catch (Exception e) {
-			LOG.info("LazyHomer exception doc");
-			e.printStackTrace();
+			LOG.warn("Eating exception and continuing", e);
 		}
 		return iamok;
 	}
@@ -279,7 +277,7 @@ public class LazyHomer implements MargeObserver {
 	}
 	
 	private void initConfig() {
-		System.out.println("Flanders: initializing configuration.");
+		LOG.info("initializing configuration.");
 		
 		// properties
 		Properties props = new Properties();
@@ -292,18 +290,17 @@ public class LazyHomer implements MargeObserver {
 		
 		// load from file
 		try {
-			System.out.println("INFO: Loading config file from load : "+configfilename);
+			LOG.debug("Loading config file from load : "+configfilename);
 			File file = new File(configfilename);
 
 			if (file.exists()) {
 				props.loadFromXML(new BufferedInputStream(new FileInputStream(file)));
 			} else { 
-				System.out.println("FATAL: Could not load config "+configfilename);
+				LOG.fatal("Could not load config "+configfilename);
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		}
+		catch (IOException e) {
+			LOG.warn("Eating exception and continuing", e);
 		}
 		
 		// only get the marge communication port unless we are a smithers
@@ -312,7 +309,7 @@ public class LazyHomer implements MargeObserver {
 		smithers_port = Integer.parseInt(props.getProperty("default-smithers-port"));
 		role = props.getProperty("role");
 		if (role==null) role = "production";
-		System.out.println("SERVER ROLE="+role);
+		LOG.info("SERVER ROLE="+role);
 	}	
 	
 	public static String getRole() {
@@ -328,7 +325,7 @@ public class LazyHomer implements MargeObserver {
 			s.send(pack,(byte)ttl);
 			s.close();
 		} catch(Exception e) {
-			System.out.println("LazyHomer error "+e.getMessage());
+			LOG.warn("Eating exception and continuing", e);
 		}
 	}
 	
@@ -472,7 +469,7 @@ public class LazyHomer implements MargeObserver {
 		}
 		String mountslist = smithers.get("/domain/internal/service/flanders/mounts",null,null);
 
-		System.out.println(mountslist);
+		LOG.debug("Mountlist: " + mountslist);
 		try { 
 			Document result = DocumentHelper.parseText(mountslist);
 			for(Iterator<Node> iter = result.getRootElement().nodeIterator(); iter.hasNext(); ) {

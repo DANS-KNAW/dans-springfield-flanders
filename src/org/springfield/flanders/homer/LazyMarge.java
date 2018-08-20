@@ -30,6 +30,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 public class LazyMarge extends Thread {
+	private static Logger log = Logger.getLogger(LazyMarge.class);
 
 	String group = "224.0.0.0";
 	int errorcounter = 0;
@@ -96,13 +97,13 @@ public class LazyMarge extends Thread {
 							String inc = result[0];
 							int pos = inc.indexOf(":");
 							if (pos==-1) {
-								System.out.println("FLANDERS: FATAL ERROR OLD ADD SMITHERS STYLE (NOT IP:PORT:MPORT) "+inc);
+								log.fatal("FATAL ERROR OLD ADD SMITHERS STYLE (NOT IP:PORT:MPORT) "+inc);
 							} else {
 								String ipn = inc.substring(0,pos);
 								String pon = inc.substring(pos+1);
 								pos = pon.indexOf(":");
 								if (pos==-1) {
-									System.out.println("FLANDERS: FATAL ERROR OLD ADD SMITHERS STYLE (NOT IP:PORT:MPORT) "+inc);
+									log.fatal("FATAL ERROR OLD ADD SMITHERS STYLE (NOT IP:PORT:MPORT) "+inc);
 								} else {
 									String mpon = pon.substring(pos+1);
 									pon = pon.substring(0,pos);
@@ -126,8 +127,7 @@ public class LazyMarge extends Thread {
 					if (running) {
 						if (errorcounter<10) {
 							errorcounter++;
-							LOG.info("ERROR Multicast innerloop");
-							e2.printStackTrace();
+							LOG.warn("ERROR Multicast innerloop", e2);
 						}
 					}
 				}
@@ -136,8 +136,7 @@ public class LazyMarge extends Thread {
 			if (running) {
 				if (errorcounter2<10) {
 					errorcounter2++;
-					LOG.info("ERROR Multicast outerloop");
-					//e.printStackTrace();
+					LOG.warn("ERROR Multicast outerloop", e);
 				}
 			}
 		}
