@@ -54,7 +54,7 @@ public class GlobalConfig {
 		config = new Properties();
 		try {
 			config.loadFromXML(new BufferedInputStream(new FileInputStream(file)));
-			log.debug("FLANDERS: loaded configuration from " + file);
+			log.debug("loaded configuration from " + file);
 		}
 		catch (IOException e) {
 			log.warn("Eating exception and continuing", e);
@@ -63,7 +63,7 @@ public class GlobalConfig {
 
 	public void initialize() {
 		String baseDir = "/springfield/flanders";
-		log.info("FLANDERS: Initializing, basedir: " + baseDir);
+		log.info("Initializing, basedir: " + baseDir);
 
 		String os = System.getProperty("os.name").toLowerCase();
 		//running windows

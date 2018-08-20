@@ -277,7 +277,7 @@ public class LazyHomer implements MargeObserver {
 	}
 	
 	private void initConfig() {
-		LOG.info("Flanders: initializing configuration.");
+		LOG.info("initializing configuration.");
 		
 		// properties
 		Properties props = new Properties();
